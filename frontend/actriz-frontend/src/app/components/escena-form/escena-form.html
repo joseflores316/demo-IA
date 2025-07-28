@@ -1,0 +1,162 @@
+<div class="form-container">
+  <div class="form-header">
+    <h1>{{ isEditMode ? 'Editar Escena' : 'Nueva Escena' }}</h1>
+    <button class="btn btn-secondary" (click)="cancel()">
+      <i class="fas fa-times"></i> Cancelar
+    </button>
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <form [formGroup]="escenaForm" (ngSubmit)="onSubmit()" class="escena-form">
+    <div class="form-group">
+      <label for="tipoEscenaId">Tipo de Escena *</label>
+      <select
+        id="tipoEscenaId"
+        formControlName="tipoEscenaId"
+        class="form-control"
+        [class.invalid]="isFieldInvalid('tipoEscenaId')">
+        <option value="">Selecciona un tipo de escena</option>
+        <option *ngFor="let tipo of tiposEscena" [value]="tipo.id">
+          {{ tipo.nombre }}
+        </option>
+      </select>
+      <div *ngIf="isFieldInvalid('tipoEscenaId')" class="error-text">
+        {{ getFieldError('tipoEscenaId') }}
+      </div>
+    </div>
+
+    <!-- Sección de Imagen -->
+    <div class="form-group imagen-section">
+      <label>Imagen de la Escena</label>
+      <div class="imagen-upload">
+        <input
+          type="file"
+          id="imagen"
+          (change)="onFileSelected($event)"
+          accept="image/*"
+          class="file-input">
+
+        <label for="imagen" class="file-label">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>{{ selectedFile ? selectedFile.name : 'Seleccionar imagen' }}</span>
+        </label>
+
+        <div *ngIf="imagePreview" class="image-preview">
+          <img [src]="imagePreview" alt="Preview" class="preview-image">
+          <button type="button" class="btn-remove-image" (click)="removeImage()">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sección de Actrices -->
+    <div class="form-group actrices-section">
+      <div class="section-header">
+        <label>Actrices en la Escena</label>
+        <button type="button" class="btn btn-outline" (click)="addActrizFormGroup()">
+          <i class="fas fa-plus"></i> Agregar Actriz
+        </button>
+      </div>
+
+      <div formArrayName="actrices" class="actrices-list">
+        <div *ngFor="let actrizGroup of actricesFormArray.controls; let i = index"
+             [formGroupName]="i"
+             class="actriz-item">
+
+          <div class="actriz-fields">
+            <div class="field-group">
+              <label [for]="'actriz-' + i">Actriz *</label>
+              <select
+                [id]="'actriz-' + i"
+                formControlName="actrizId"
+                class="form-control">
+                <option value="">Selecciona una actriz</option>
+                <option *ngFor="let actriz of actrices" [value]="actriz.id">
+                  {{ actriz.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <div class="field-group">
+              <label [for]="'papel-' + i">Papel/Rol</label>
+              <input
+                type="text"
+                [id]="'papel-' + i"
+                formControlName="papel"
+                class="form-control"
+                placeholder="Ej: Protagonista, Antagonista, etc.">
+            </div>
+          </div>
+
+          <button type="button"
+                  class="btn btn-danger btn-icon"
+                  (click)="removeActrizFormGroup(i)"
+                  [disabled]="actricesFormArray.length <= 1"
+                  title="Eliminar actriz">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="descripcion">Descripción</label>
+      <textarea
+        id="descripcion"
+        formControlName="descripcion"
+        class="form-control textarea"
+        rows="4"
+        placeholder="Describe la escena...">
+      </textarea>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="fechaGrabacion">Fecha de Grabación</label>
+        <input
+          type="date"
+          id="fechaGrabacion"
+          formControlName="fechaGrabacion"
+          class="form-control">
+      </div>
+
+      <div class="form-group">
+        <label for="duracion">Duración</label>
+        <input
+          type="text"
+          id="duracion"
+          formControlName="duracion"
+          class="form-control"
+          placeholder="ej: 00:15:30, 15 minutos">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="ubicacion">Ubicación</label>
+      <input
+        type="text"
+        id="ubicacion"
+        formControlName="ubicacion"
+        class="form-control"
+        placeholder="Lugar donde se grabó la escena">
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="btn btn-secondary" (click)="cancel()">
+        <i class="fas fa-times"></i> Cancelar
+      </button>
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="loading">
+        <i *ngIf="loading" class="fas fa-spinner fa-spin"></i>
+        <i *ngIf="!loading" class="fas fa-save"></i>
+        {{ loading ? 'Guardando...' : (isEditMode ? 'Actualizar' : 'Crear') }}
+      </button>
+    </div>
+  </form>
+</div>

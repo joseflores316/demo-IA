@@ -1,0 +1,10 @@
+<svg width="300" height="400" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="400" fill="#e9ecef"/>
+  <g fill="#6c757d" text-anchor="middle" font-family="Arial, sans-serif">
+    <circle cx="150" cy="120" r="40" fill="#dee2e6"/>
+    <path d="M150 80c-22 0-40 18-40 40s18 40 40 40 40-18 40-40-18-40-40-40zm0 15c8 0 15 7 15 15s-7 15-15 15-15-7-15-15 7-15 15-15z"/>
+    <ellipse cx="150" cy="300" rx="80" ry="60" fill="#dee2e6"/>
+    <text x="150" y="350" font-size="14" fill="#6c757d">Sin imagen</text>
+  </g>
+</svg>
+

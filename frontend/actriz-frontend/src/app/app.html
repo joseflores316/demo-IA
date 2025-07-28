@@ -1,0 +1,57 @@
+<div class="app-container">
+  <header class="app-header">
+    <div class="header-content">
+      <h1 class="app-title">
+        <i class="fas fa-star"></i>
+        {{ title }}
+      </h1>
+      <nav class="app-nav">
+        <!-- Menú de Actrices -->
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-btn">
+            <i class="fas fa-users"></i> Actrices
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="nav-dropdown-content">
+            <a routerLink="/actrices" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-list"></i> Listado
+            </a>
+            <a routerLink="/actrices/crear" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-user-plus"></i> Nueva Actriz
+            </a>
+          </div>
+        </div>
+
+        <!-- Menú de Escenas -->
+        <div class="nav-dropdown">
+          <button class="nav-dropdown-btn">
+            <i class="fas fa-film"></i> Escenas
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="nav-dropdown-content">
+            <a routerLink="/escenas" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-list"></i> Listado
+            </a>
+            <a routerLink="/escenas/crear" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-plus-circle"></i> Nueva Escena
+            </a>
+            <a routerLink="/tipos-escena" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-tags"></i> Tipos de Escena
+            </a>
+            <a routerLink="/tipos-escena/crear" routerLinkActive="active" class="dropdown-link">
+              <i class="fas fa-plus"></i> Nuevo Tipo
+            </a>
+          </div>
+        </div>
+      </nav>
+    </div>
+  </header>
+
+  <main class="app-main">
+    <router-outlet></router-outlet>
+  </main>
+
+  <footer class="app-footer">
+    <p>&copy; 2024 Sistema de Gestión de Actrices</p>
+  </footer>
+</div>

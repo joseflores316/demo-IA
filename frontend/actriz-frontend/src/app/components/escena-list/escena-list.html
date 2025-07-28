@@ -1,0 +1,92 @@
+<div class="escena-list-container">
+  <div class="list-header">
+    <h1>Gestión de Escenas</h1>
+    <button class="btn btn-primary" routerLink="/escenas/crear">
+      <i class="fas fa-plus"></i> Nueva Escena
+    </button>
+  </div>
+
+  <div *ngIf="loading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Cargando escenas...
+  </div>
+
+  <div *ngIf="error" class="error-message">
+    <i class="fas fa-exclamation-triangle"></i> {{ error }}
+  </div>
+
+  <div *ngIf="!loading && escenas.length === 0" class="no-escenas">
+    <i class="fas fa-film fa-3x"></i>
+    <h3>No hay escenas registradas</h3>
+    <p>Comienza creando tu primera escena</p>
+    <button class="btn btn-primary btn-outline" routerLink="/escenas/crear">
+      <i class="fas fa-plus"></i> Crear Primera Escena
+    </button>
+  </div>
+
+  <div *ngIf="!loading && escenas.length > 0" class="escenas-grid">
+    <div *ngFor="let escena of escenas" class="escena-card">
+      <!-- Imagen de la escena -->
+      <div class="escena-image" *ngIf="escena.imagenUrl">
+        <img [src]="escena.imagenUrl" [alt]="'Imagen de escena ' + escena.id"
+             (error)="onImageError($event)" class="escena-img">
+      </div>
+      <div class="escena-image no-image" *ngIf="!escena.imagenUrl">
+        <i class="fas fa-film fa-3x"></i>
+        <span>Sin imagen</span>
+      </div>
+
+      <div class="card-header">
+        <h3>{{ escena.tipoEscena?.nombre || 'Sin tipo definido' }}</h3>
+        <div class="escena-id">#{{ escena.id }}</div>
+      </div>
+
+      <div class="card-content">
+        <div class="escena-description" *ngIf="escena.descripcion">
+          <p>{{ escena.descripcion }}</p>
+        </div>
+
+        <div class="escena-details">
+          <div class="detail-row" *ngIf="escena.fechaGrabacion">
+            <span class="label">
+              <i class="fas fa-calendar"></i> Fecha de Grabación:
+            </span>
+            <span>{{ escena.fechaGrabacion | date:'dd/MM/yyyy' }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="escena.duracion">
+            <span class="label">
+              <i class="fas fa-clock"></i> Duración:
+            </span>
+            <span>{{ formatDuration(escena.duracion) }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="escena.ubicacion">
+            <span class="label">
+              <i class="fas fa-map-marker-alt"></i> Ubicación:
+            </span>
+            <span>{{ escena.ubicacion }}</span>
+          </div>
+
+          <div class="detail-row" *ngIf="escena.papel">
+            <span class="label">
+              <i class="fas fa-theater-masks"></i> Papel:
+            </span>
+            <span>{{ escena.papel }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-actions">
+        <button class="btn btn-secondary" [routerLink]="['/escenas', escena.id]">
+          <i class="fas fa-eye"></i> Ver
+        </button>
+        <button class="btn btn-primary" [routerLink]="['/escenas', escena.id, 'editar']">
+          <i class="fas fa-edit"></i> Editar
+        </button>
+        <button class="btn btn-danger" (click)="deleteEscena(escena.id)">
+          <i class="fas fa-trash"></i> Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
