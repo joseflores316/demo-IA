@@ -1,12 +1,12 @@
 # Etapa 1: Build
-FROM openjdk:11-jdk-alpine AS build
+FROM maven:3.8.6-openjdk-11-slim AS build
 
 WORKDIR /app
 
 # Copiar archivos de Maven
+COPY pom.xml .
 COPY mvnw .
 COPY mvnw.cmd .
-COPY pom.xml .
 COPY .mvn .mvn
 
 # Copiar código fuente
@@ -17,7 +17,7 @@ RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Etapa 2: Runtime
-FROM openjdk:11-jre-alpine
+FROM openjdk:11-jre-slim
 
 WORKDIR /app
 
