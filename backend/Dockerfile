@@ -1,5 +1,5 @@
 # Etapa 1: Build
-FROM eclipse-temurin:11-jdk-alpine AS build
+FROM openjdk:11-jdk-alpine AS build
 
 WORKDIR /app
 
@@ -17,7 +17,7 @@ RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Etapa 2: Runtime
-FROM eclipse-temurin:11-jre-alpine
+FROM openjdk:11-jre-alpine
 
 WORKDIR /app
 
