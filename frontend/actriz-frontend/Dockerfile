@@ -6,14 +6,14 @@ WORKDIR /app
 # Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Instalar dependencias
-RUN npm ci --only=production
+# Instalar todas las dependencias (incluidas las de desarrollo)
+RUN npm ci
 
 # Copiar el código fuente
 COPY . .
 
 # Build de la aplicación para producción
-RUN npx ng build --configuration=production
+RUN npm run build --configuration=production
 
 # Etapa 2: Servir la aplicación con Nginx
 FROM nginx:alpine
