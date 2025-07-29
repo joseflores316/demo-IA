@@ -18,6 +18,9 @@ RUN npm run build
 # Etapa 2: Serve con nginx
 FROM nginx:alpine
 
+# Eliminar configuración por defecto de nginx
+RUN rm /etc/nginx/conf.d/default.conf
+
 # Copiar configuración personalizada de nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
