@@ -1,35 +1,30 @@
-# Etapa 1: Build de la aplicación Angular
+# Etapa 1: Build
 FROM node:20-alpine AS build
 
-# Establecer directorio de trabajo
 WORKDIR /app
 
-# Copiar package.json y package-lock.json para instalar dependencias
+# Copiar package.json y package-lock.json
 COPY package*.json ./
 
-# Instalar todas las dependencias (incluidas las de desarrollo)
+# Instalar dependencias
 RUN npm ci
 
-# Copiar el código fuente completo
+# Copiar código fuente
 COPY . .
 
-# Build de la aplicación para producción
-RUN npm run build -- --configuration=production
+# Build de la aplicación Angular
+RUN npm run build
 
-# Etapa 2: Servir la aplicación con Nginx
+# Etapa 2: Serve con nginx
 FROM nginx:alpine
 
-# Remover la configuración por defecto de nginx
-RUN rm -rf /usr/share/nginx/html/*
-
-# Copiar la configuración personalizada de nginx
+# Copiar configuración personalizada de nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copiar los archivos compilados desde la etapa de build
+# Copiar archivos compilados de Angular
 COPY --from=build /app/dist/actriz-frontend /usr/share/nginx/html
 
-# Exponer el puerto 80
+# Exponer puerto 80
 EXPOSE 80
 
-# Comando por defecto para iniciar nginx
 CMD ["nginx", "-g", "daemon off;"]
