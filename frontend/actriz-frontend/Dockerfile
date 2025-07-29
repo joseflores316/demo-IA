@@ -24,8 +24,8 @@ RUN rm /etc/nginx/conf.d/default.conf
 # Copiar configuración personalizada de nginx
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Copiar archivos compilados de Angular
-COPY --from=build /app/dist/actriz-frontend /usr/share/nginx/html
+# Copiar archivos compilados de Angular desde la ubicación correcta
+COPY --from=build /app/dist/actriz-frontend/browser /usr/share/nginx/html
 
 # Exponer puerto 80
 EXPOSE 80
