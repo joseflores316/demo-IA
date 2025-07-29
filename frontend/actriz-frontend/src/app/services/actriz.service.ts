@@ -7,7 +7,7 @@ import { Actriz, ActrizCreateRequest, Pais } from '../models/actriz';
   providedIn: 'root'
 })
 export class ActrizService {
-  private readonly baseUrl = '/api/actrices'; // Usar ruta relativa para Docker
+  private readonly baseUrl = 'https://demo-ia-production.up.railway.app/api/actrices';
 
   constructor(private http: HttpClient) {}
 
@@ -70,6 +70,6 @@ export class ActrizService {
 
   // Obtener países
   getPaises(): Observable<Pais[]> {
-    return this.http.get<Pais[]>('/api/paises'); // Usar ruta relativa para Docker
+    return this.http.get<Pais[]>('https://demo-ia-production.up.railway.app/api/paises');
   }
 }

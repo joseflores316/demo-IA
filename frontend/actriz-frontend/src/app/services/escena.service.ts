@@ -7,7 +7,7 @@ import { Escena, EscenaCreateRequest, TipoEscena } from '../models/actriz';
   providedIn: 'root'
 })
 export class EscenaService {
-  private readonly baseUrl = '/api/escenas'; // Usar ruta relativa para Docker
+  private readonly baseUrl = 'https://demo-ia-production.up.railway.app/api/escenas'; // Usar URL completa del backend
 
   constructor(private http: HttpClient) {}
 
@@ -76,6 +76,6 @@ export class EscenaService {
 
   // Obtener tipos de escena
   getTiposEscena(): Observable<TipoEscena[]> {
-    return this.http.get<TipoEscena[]>('/api/tipos-escena'); // Usar ruta relativa para Docker
+    return this.http.get<TipoEscena[]>('https://demo-ia-production.up.railway.app/api/tipos-escena');
   }
 }

@@ -7,7 +7,7 @@ import { TipoEscena, TipoEscenaCreateRequest } from '../models/tipo-escena';
   providedIn: 'root'
 })
 export class TipoEscenaService {
-  private apiUrl = '/api/tipos-escena'; // Usar ruta relativa para Docker
+  private apiUrl = 'https://demo-ia-production.up.railway.app/api/tipos-escena'; // Usar URL completa del backend
 
   constructor(private http: HttpClient) {}
 
