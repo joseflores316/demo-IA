@@ -21,18 +21,10 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(false)
                 .maxAge(3600);
 
-        // Configuración específica para Swagger UI - permitir cualquier origen
-        registry.addMapping("/swagger-ui/**")
+        // Configuración amplia para Swagger UI - permitir todo
+        registry.addMapping("/**")
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(false)
-                .maxAge(3600);
-
-        // Configuración específica para OpenAPI docs
-        registry.addMapping("/v3/api-docs/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "OPTIONS")
                 .allowedHeaders("*")
                 .allowCredentials(false)
                 .maxAge(3600);
