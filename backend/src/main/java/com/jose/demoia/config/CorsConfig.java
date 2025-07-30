@@ -9,7 +9,8 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")
+        // Configuración general para la API
+        registry.addMapping("/api/**")
                 .allowedOriginPatterns(
                     "http://localhost:4200",
                     "https://loving-exploration-production.up.railway.app",
@@ -20,17 +21,20 @@ public class CorsConfig implements WebMvcConfigurer {
                 .allowCredentials(false)
                 .maxAge(3600);
 
-        // Configuración específica para Swagger/OpenAPI
+        // Configuración específica para Swagger UI - permitir cualquier origen
+        registry.addMapping("/swagger-ui/**")
+                .allowedOriginPatterns("*")
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
+                .allowedHeaders("*")
+                .allowCredentials(false)
+                .maxAge(3600);
+
+        // Configuración específica para OpenAPI docs
         registry.addMapping("/v3/api-docs/**")
                 .allowedOriginPatterns("*")
                 .allowedMethods("GET", "OPTIONS")
                 .allowedHeaders("*")
-                .allowCredentials(false);
-
-        registry.addMapping("/swagger-ui/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("GET", "OPTIONS")
-                .allowedHeaders("*")
-                .allowCredentials(false);
+                .allowCredentials(false)
+                .maxAge(3600);
     }
 }
