@@ -9,98 +9,94 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
             padding: 20px;
-            background-color: #f5f5f5;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
         }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
         }
+
         h1 {
-            color: #333;
+            color: white;
             text-align: center;
             margin-bottom: 30px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
         }
-        .status-grid {
+
+        .metrics-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
             gap: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
-        .status-card {
-            background: white;
-            border-radius: 8px;
+
+        .metric-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 15px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        .status-card h3 {
-            margin-top: 0;
-            color: #444;
-            border-bottom: 2px solid #eee;
-            padding-bottom: 10px;
+
+        .metric-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
         }
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        .status-up { background-color: #28a745; }
-        .status-down { background-color: #dc3545; }
-        .memory-bar {
-            width: 100%;
-            height: 20px;
-            background-color: #e9ecef;
-            border-radius: 10px;
-            overflow: hidden;
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
             margin: 10px 0;
         }
-        .memory-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #28a745, #ffc107, #dc3545);
-            transition: width 0.3s ease;
+
+        .metric-description {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
         }
-        .metric {
-            display: flex;
-            justify-content: space-between;
-            margin: 8px 0;
-            padding: 5px 0;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        .metric:last-child {
-            border-bottom: none;
-        }
-        .metric-label {
-            font-weight: 600;
-            color: #555;
-        }
-        .metric-value {
-            color: #333;
-        }
+
+        .status-good { color: #27ae60; }
+        .status-warning { color: #f39c12; }
+        .status-critical { color: #e74c3c; }
+
+        .emoji { margin-right: 8px; }
+
         .refresh-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #007bff;
+            background: linear-gradient(45deg, #667eea, #764ba2);
             color: white;
             border: none;
-            padding: 10px 20px;
-            border-radius: 5px;
+            padding: 12px 24px;
+            border-radius: 25px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            margin: 20px auto;
+            display: block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: transform 0.2s;
         }
+
         .refresh-btn:hover {
-            background: #0056b3;
+            transform: translateY(-2px);
         }
-        .last-updated {
+
+        .loading {
             text-align: center;
             color: #666;
+            font-style: italic;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: rgba(255,255,255,0.8);
             font-size: 14px;
             margin-top: 20px;
-        }
-        .error {
-            color: #dc3545;
-            font-style: italic;
         }
     </style>
 </head>
@@ -108,151 +104,164 @@
     <div class="container">
         <h1>🚀 Demo IA - Dashboard de Monitoreo</h1>
 
-        <button class="refresh-btn" onclick="loadStatus()">🔄 Actualizar</button>
+        <button class="refresh-btn" onclick="loadAllMetrics()">🔄 Actualizar Métricas</button>
 
-        <div class="status-grid">
-            <!-- Información General -->
-            <div class="status-card">
-                <h3>📊 Información General</h3>
-                <div class="metric">
-                    <span class="metric-label">Aplicación:</span>
-                    <span class="metric-value" id="app-name">-</span>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">🧠</span>
+                    Memoria JVM Utilizada
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Versión:</span>
-                    <span class="metric-value" id="app-version">-</span>
+                <div class="metric-value status-good" id="memory-used">
+                    <span class="loading">Cargando...</span>
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Entorno:</span>
-                    <span class="metric-value" id="app-environment">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Última actualización:</span>
-                    <span class="metric-value" id="last-update">-</span>
-                </div>
+                <div class="metric-description">Memoria heap actualmente en uso</div>
             </div>
 
-            <!-- Estado de Base de Datos -->
-            <div class="status-card">
-                <h3>🗄️ Base de Datos</h3>
-                <div class="metric">
-                    <span class="metric-label">Estado:</span>
-                    <span class="metric-value">
-                        <span id="db-indicator" class="status-indicator"></span>
-                        <span id="db-status">-</span>
-                    </span>
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">📊</span>
+                    Memoria JVM Máxima
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Driver:</span>
-                    <span class="metric-value" id="db-driver">-</span>
+                <div class="metric-value status-good" id="memory-max">
+                    <span class="loading">Cargando...</span>
                 </div>
-                <div class="metric">
-                    <span class="metric-label">URL:</span>
-                    <span class="metric-value" id="db-url">-</span>
-                </div>
+                <div class="metric-description">Límite máximo configurado (-Xmx)</div>
             </div>
 
-            <!-- Memoria -->
-            <div class="status-card">
-                <h3>🧠 Uso de Memoria</h3>
-                <div class="metric">
-                    <span class="metric-label">Usado:</span>
-                    <span class="metric-value">
-                        <span id="memory-used">-</span> MB (<span id="memory-percentage">-</span>%)
-                    </span>
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">🗑️</span>
+                    Ejecuciones Garbage Collector
                 </div>
-                <div class="memory-bar">
-                    <div class="memory-fill" id="memory-bar"></div>
+                <div class="metric-value status-good" id="gc-count">
+                    <span class="loading">Cargando...</span>
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Total:</span>
-                    <span class="metric-value" id="memory-total">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Máximo:</span>
-                    <span class="metric-value" id="memory-max">-</span>
-                </div>
-                <div class="metric">
-                    <span class="metric-label">Libre:</span>
-                    <span class="metric-value" id="memory-free">-</span>
-                </div>
+                <div class="metric-description">Número total de ejecuciones del GC</div>
             </div>
 
-            <!-- Sistema -->
-            <div class="status-card">
-                <h3>⚙️ Sistema</h3>
-                <div class="metric">
-                    <span class="metric-label">Java:</span>
-                    <span class="metric-value" id="java-version">-</span>
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">⏱️</span>
+                    Tiempo Total en GC
                 </div>
-                <div class="metric">
-                    <span class="metric-label">SO:</span>
-                    <span class="metric-value" id="os-name">-</span>
+                <div class="metric-value status-good" id="gc-time">
+                    <span class="loading">Cargando...</span>
                 </div>
-                <div class="metric">
-                    <span class="metric-label">Procesadores:</span>
-                    <span class="metric-value" id="processors">-</span>
+                <div class="metric-description">Tiempo total gastado en limpieza de memoria</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">🔗</span>
+                    Threads Activos
                 </div>
+                <div class="metric-value status-good" id="threads-live">
+                    <span class="loading">Cargando...</span>
+                </div>
+                <div class="metric-description">Hilos de ejecución actualmente activos</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-title">
+                    <span class="emoji">💾</span>
+                    Utilización de Memoria
+                </div>
+                <div class="metric-value status-good" id="memory-percentage">
+                    <span class="loading">Cargando...</span>
+                </div>
+                <div class="metric-description">Porcentaje de memoria utilizada</div>
             </div>
         </div>
 
-        <div class="last-updated">
-            Última actualización: <span id="timestamp">-</span>
-        </div>
+        <div class="last-updated" id="last-updated"></div>
     </div>
 
     <script>
-        async function loadStatus() {
+        function formatBytes(bytes) {
+            return Math.round(bytes / 1024 / 1024) + ' MB';
+        }
+
+        function formatSeconds(seconds) {
+            if (seconds < 1) {
+                return Math.round(seconds * 1000) + ' ms';
+            }
+            return seconds.toFixed(2) + ' seg';
+        }
+
+        function getStatusClass(value, thresholds) {
+            if (value < thresholds.good) return 'status-good';
+            if (value < thresholds.warning) return 'status-warning';
+            return 'status-critical';
+        }
+
+        async function fetchMetric(path) {
             try {
-                const response = await fetch('/api/monitoring/status');
-                const data = await response.json();
-
-                // Información general
-                document.getElementById('app-name').textContent = data.application || '-';
-                document.getElementById('app-version').textContent = data.version || '-';
-                document.getElementById('app-environment').textContent = data.environment || '-';
-                document.getElementById('last-update').textContent = new Date(data.timestamp).toLocaleString('es-ES');
-
-                // Base de datos
-                const dbStatus = data.database?.status || 'UNKNOWN';
-                document.getElementById('db-status').textContent = dbStatus;
-                document.getElementById('db-indicator').className =
-                    'status-indicator ' + (dbStatus === 'UP' ? 'status-up' : 'status-down');
-                document.getElementById('db-driver').textContent = data.database?.driver || '-';
-                document.getElementById('db-url').textContent = data.database?.url || '-';
-
-                // Memoria
-                const memory = data.memory || {};
-                document.getElementById('memory-used').textContent = memory.used_mb || '-';
-                document.getElementById('memory-percentage').textContent = memory.usage_percentage || '-';
-                document.getElementById('memory-total').textContent = (memory.total_mb || '-') + ' MB';
-                document.getElementById('memory-max').textContent = (memory.max_mb || '-') + ' MB';
-                document.getElementById('memory-free').textContent = (memory.free_mb || '-') + ' MB';
-
-                // Barra de memoria
-                const percentage = memory.usage_percentage || 0;
-                document.getElementById('memory-bar').style.width = percentage + '%';
-
-                // Sistema
-                document.getElementById('java-version').textContent = data.system?.java_version || '-';
-                document.getElementById('os-name').textContent = data.system?.os_name || '-';
-                document.getElementById('processors').textContent = data.system?.processors || '-';
-
-                document.getElementById('timestamp').textContent = new Date().toLocaleString('es-ES');
-
+                const response = await fetch(`/actuator/metrics/${path}`);
+                return await response.json();
             } catch (error) {
-                console.error('Error loading status:', error);
-                // Mostrar error en la interfaz
-                document.getElementById('app-name').innerHTML = '<span class="error">Error cargando datos</span>';
+                console.error(`Error fetching ${path}:`, error);
+                return null;
             }
         }
 
-        // Cargar estado inicial
-        loadStatus();
+        async function loadAllMetrics() {
+            const memoryUsed = await fetchMetric('jvm.memory.used');
+            const memoryMax = await fetchMetric('jvm.memory.max');
+            const gcPause = await fetchMetric('jvm.gc.pause');
+            const threadsLive = await fetchMetric('jvm.threads.live');
+
+            if (memoryUsed) {
+                const usedMB = memoryUsed.measurements[0].value;
+                document.getElementById('memory-used').innerHTML = formatBytes(usedMB);
+            }
+
+            if (memoryMax) {
+                const maxMB = memoryMax.measurements[0].value;
+                document.getElementById('memory-max').innerHTML = formatBytes(maxMB);
+            }
+
+            if (gcPause) {
+                const gcCount = gcPause.measurements.find(m => m.statistic === 'COUNT').value;
+                const gcTotalTime = gcPause.measurements.find(m => m.statistic === 'TOTAL_TIME').value;
+
+                const countElement = document.getElementById('gc-count');
+                const timeElement = document.getElementById('gc-time');
+
+                countElement.innerHTML = gcCount + ' veces';
+                timeElement.innerHTML = formatSeconds(gcTotalTime);
+
+                // Aplicar colores según thresholds
+                countElement.className = 'metric-value ' + getStatusClass(gcCount, {good: 20, warning: 50});
+                timeElement.className = 'metric-value ' + getStatusClass(gcTotalTime, {good: 1, warning: 5});
+            }
+
+            if (threadsLive) {
+                const threads = threadsLive.measurements[0].value;
+                document.getElementById('threads-live').innerHTML = threads + ' threads';
+            }
+
+            // Calcular porcentaje de utilización
+            if (memoryUsed && memoryMax) {
+                const usedMB = memoryUsed.measurements[0].value;
+                const maxMB = memoryMax.measurements[0].value;
+                const percentage = ((usedMB / maxMB) * 100).toFixed(1);
+
+                const percentElement = document.getElementById('memory-percentage');
+                percentElement.innerHTML = percentage + '%';
+                percentElement.className = 'metric-value ' + getStatusClass(percentage, {good: 70, warning: 85});
+            }
+
+            // Actualizar timestamp
+            document.getElementById('last-updated').innerHTML =
+                `Última actualización: ${new Date().toLocaleString()}`;
+        }
+
+        // Cargar métricas al iniciar
+        loadAllMetrics();
 
         // Auto-refresh cada 30 segundos
-        setInterval(loadStatus, 30000);
+        setInterval(loadAllMetrics, 30000);
     </script>
 </body>
 </html>
-
