@@ -1,10 +1,9 @@
 {
   "$schema": "https://railway.app/railway.schema.json",
   "build": {
-    "builder": "DOCKERFILE",
-    "dockerfilePath": "../Dockerfile"
+    "builder": "NIXPACKS"
   },
   "deploy": {
-    "startCommand": "java -Dspring.profiles.active=prod -Xmx400m -Xms200m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:+UseStringDeduplication -Djava.security.egd=file:/dev/./urandom -jar /app/app.jar"
+    "startCommand": "java -Dspring.profiles.active=prod -Xmx400m -Xms200m -XX:MaxMetaspaceSize=128m -XX:+UseG1GC -XX:+UseStringDeduplication -Djava.security.egd=file:/dev/./urandom -jar target/demo-IA-0.0.1-SNAPSHOT.jar"
   }
 }
