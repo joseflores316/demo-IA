@@ -96,6 +96,25 @@
             <artifactId>cloudinary-http44</artifactId>
             <version>1.33.0</version>
         </dependency>
+
+        <!-- Spring Boot Actuator para observabilidad -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <!-- Micrometer para métricas -->
+        <dependency>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-core</artifactId>
+        </dependency>
+
+        <!-- Logback para logging estructurado -->
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>7.2</version>
+        </dependency>
     </dependencies>
 
     <build>
