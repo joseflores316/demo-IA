@@ -1,5 +1,4 @@
 package com.jose.demoia.common.monitoring;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,3 +64,4 @@ public class HealthController {
         return ResponseEntity.ok(version);
     }
 }
+
