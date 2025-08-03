@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Demo IA - Dashboard de Monitoreo</title>
+    <title>Demo IA - Dashboard de Monitoreo Avanzado</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -50,236 +50,307 @@
             align-items: center;
         }
 
+        .metric-title::before {
+            content: '📊';
+            margin-right: 8px;
+        }
+
+        .cache-title::before {
+            content: '🚀';
+        }
+
+        .memory-title::before {
+            content: '💾';
+        }
+
+        .gc-title::before {
+            content: '🗑️';
+        }
+
         .metric-value {
-            font-size: 24px;
+            font-size: 28px;
             font-weight: bold;
-            margin: 10px 0;
+            color: #2c3e50;
+            margin-bottom: 5px;
         }
 
         .metric-description {
+            color: #666;
             font-size: 14px;
-            color: #666;
-            margin-top: 5px;
         }
 
-        .status-good { color: #27ae60; }
-        .status-warning { color: #f39c12; }
-        .status-critical { color: #e74c3c; }
-
-        .emoji { margin-right: 8px; }
-
-        .refresh-btn {
-            background: linear-gradient(45deg, #667eea, #764ba2);
-            color: white;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 25px;
-            cursor: pointer;
-            font-size: 16px;
-            margin: 20px auto;
-            display: block;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-            transition: transform 0.2s;
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
         }
 
-        .refresh-btn:hover {
-            transform: translateY(-2px);
-        }
-
-        .loading {
-            text-align: center;
-            color: #666;
-            font-style: italic;
-        }
+        .status-good { background-color: #27ae60; }
+        .status-warning { background-color: #f39c12; }
+        .status-critical { background-color: #e74c3c; }
 
         .last-updated {
             text-align: center;
-            color: rgba(255,255,255,0.8);
-            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
             margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .cache-details {
+            margin-top: 15px;
+        }
+
+        .cache-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .cache-item:last-child {
+            border-bottom: none;
+        }
+
+        .cache-name {
+            font-weight: 600;
+            color: #34495e;
+        }
+
+        .cache-stats {
+            font-size: 12px;
+            color: #7f8c8d;
+        }
+
+        .btn-clear-cache {
+            background: linear-gradient(45deg, #e74c3c, #c0392b);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 10px;
+            transition: all 0.3s;
+        }
+
+        .btn-clear-cache:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>🚀 Demo IA - Dashboard de Monitoreo</h1>
-
-        <button class="refresh-btn" onclick="loadAllMetrics()">🔄 Actualizar Métricas</button>
+        <h1>🚀 Demo IA - Dashboard de Monitoreo Avanzado</h1>
 
         <div class="metrics-grid">
+            <!-- Métricas de Memoria -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">🧠</span>
-                    Memoria JVM Utilizada
-                </div>
-                <div class="metric-value status-good" id="memory-used">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Memoria heap actualmente en uso</div>
+                <div class="metric-title memory-title">Uso de Memoria</div>
+                <div class="metric-value" id="memory-used">Cargando...</div>
+                <div class="metric-description" id="memory-description">Memoria utilizada / Total disponible</div>
             </div>
 
+            <!-- Métricas de Caché -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">📊</span>
-                    Memoria JVM Máxima
+                <div class="metric-title cache-title">Rendimiento de Caché</div>
+                <div class="metric-value" id="cache-hit-rate">Cargando...</div>
+                <div class="metric-description">Tasa de aciertos del caché</div>
+                <div class="cache-details" id="cache-details">
+                    <!-- Se llenarán dinámicamente -->
                 </div>
-                <div class="metric-value status-good" id="memory-max">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Límite máximo configurado (-Xmx)</div>
+                <button class="btn-clear-cache" onclick="clearCache()">🗑️ Limpiar Caché</button>
             </div>
 
+            <!-- Métricas de GC -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">🗑️</span>
-                    Ejecuciones Garbage Collector
-                </div>
-                <div class="metric-value status-good" id="gc-count">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Número total de ejecuciones del GC y frecuencia por hora</div>
+                <div class="metric-title gc-title">Garbage Collector</div>
+                <div class="metric-value" id="gc-count">Cargando...</div>
+                <div class="metric-description" id="gc-description">Ejecuciones del GC</div>
             </div>
 
+            <!-- CPU Usage -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">⏱️</span>
-                    Tiempo Total en GC
-                </div>
-                <div class="metric-value status-good" id="gc-time">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Tiempo total gastado en limpieza de memoria</div>
+                <div class="metric-title">CPU</div>
+                <div class="metric-value" id="cpu-usage">Cargando...</div>
+                <div class="metric-description">Uso del procesador</div>
             </div>
 
+            <!-- Métricas de BD -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">🔗</span>
-                    Threads Activos
-                </div>
-                <div class="metric-value status-good" id="threads-live">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Hilos de ejecución actualmente activos</div>
+                <div class="metric-title">Base de Datos</div>
+                <div class="metric-value" id="db-connections">Cargando...</div>
+                <div class="metric-description">Conexiones activas</div>
             </div>
 
+            <!-- Uptime -->
             <div class="metric-card">
-                <div class="metric-title">
-                    <span class="emoji">💾</span>
-                    Utilización de Memoria
-                </div>
-                <div class="metric-value status-good" id="memory-percentage">
-                    <span class="loading">Cargando...</span>
-                </div>
-                <div class="metric-description">Porcentaje de memoria utilizada</div>
+                <div class="metric-title">Tiempo Activo</div>
+                <div class="metric-value" id="uptime">Cargando...</div>
+                <div class="metric-description">Tiempo desde el último reinicio</div>
             </div>
         </div>
 
-        <div class="last-updated" id="last-updated"></div>
+        <div class="last-updated" id="last-updated">
+            Última actualización: <span id="update-time">--</span>
+        </div>
     </div>
 
     <script>
-        function formatBytes(bytes) {
-            return Math.round(bytes / 1024 / 1024) + ' MB';
-        }
+        // Variables globales
+        let updateInterval;
 
-        function formatSeconds(seconds) {
-            if (seconds < 1) {
-                return Math.round(seconds * 1000) + ' ms';
-            }
-            return seconds.toFixed(2) + ' seg';
-        }
-
-        function getStatusClass(value, thresholds) {
-            if (value < thresholds.good) return 'status-good';
-            if (value < thresholds.warning) return 'status-warning';
-            return 'status-critical';
-        }
-
-        async function fetchMetric(path) {
+        // Función para obtener métricas de caché
+        async function fetchCacheMetrics() {
             try {
-                const response = await fetch(`/actuator/metrics/${path}`);
+                const response = await fetch('/actuator/cache/summary');
                 return await response.json();
             } catch (error) {
-                console.error(`Error fetching ${path}:`, error);
+                console.error('Error al obtener métricas de caché:', error);
                 return null;
             }
         }
 
-        async function loadAllMetrics() {
-            const memoryUsed = await fetchMetric('jvm.memory.used');
-            const memoryMax = await fetchMetric('jvm.memory.max');
-            const gcPause = await fetchMetric('jvm.gc.pause');
-            const threadsLive = await fetchMetric('jvm.threads.live');
-            const uptime = await fetchMetric('process.uptime');
-
-            if (memoryUsed) {
-                const usedMB = memoryUsed.measurements[0].value;
-                document.getElementById('memory-used').innerHTML = formatBytes(usedMB);
+        // Función para obtener detalles de caché
+        async function fetchCacheDetails() {
+            try {
+                const response = await fetch('/actuator/cache/stats');
+                return await response.json();
+            } catch (error) {
+                console.error('Error al obtener detalles de caché:', error);
+                return null;
             }
-
-            if (memoryMax) {
-                const maxMB = memoryMax.measurements[0].value;
-                document.getElementById('memory-max').innerHTML = formatBytes(maxMB);
-            }
-
-            if (gcPause && uptime) {
-                const gcCount = gcPause.measurements.find(m => m.statistic === 'COUNT').value;
-                const gcTotalTime = gcPause.measurements.find(m => m.statistic === 'TOTAL_TIME').value;
-                const uptimeSeconds = uptime.measurements[0].value;
-                const uptimeHours = uptimeSeconds / 3600;
-
-                // Calcular ejecuciones por hora
-                const gcPerHour = uptimeHours > 0 ? (gcCount / uptimeHours).toFixed(1) : 'N/A';
-
-                const countElement = document.getElementById('gc-count');
-                const timeElement = document.getElementById('gc-time');
-
-                // Mostrar total y frecuencia por hora
-                countElement.innerHTML = `${gcCount} veces<br><small style="font-size: 14px; color: #666;">${gcPerHour}/hora</small>`;
-                timeElement.innerHTML = formatSeconds(gcTotalTime);
-
-                // Aplicar colores según frecuencia por hora
-                const gcPerHourNum = parseFloat(gcPerHour);
-                if (gcPerHourNum && gcPerHourNum < 20) {
-                    countElement.className = 'metric-value status-good';
-                } else if (gcPerHourNum && gcPerHourNum < 50) {
-                    countElement.className = 'metric-value status-warning';
-                } else if (gcPerHourNum && gcPerHourNum >= 50) {
-                    countElement.className = 'metric-value status-critical';
-                } else {
-                    countElement.className = 'metric-value status-good'; // Para N/A
-                }
-
-                timeElement.className = 'metric-value ' + getStatusClass(gcTotalTime, {good: 1, warning: 5});
-            }
-
-            if (threadsLive) {
-                const threads = threadsLive.measurements[0].value;
-                document.getElementById('threads-live').innerHTML = threads + ' threads';
-            }
-
-            // Calcular porcentaje de utilización
-            if (memoryUsed && memoryMax) {
-                const usedMB = memoryUsed.measurements[0].value;
-                const maxMB = memoryMax.measurements[0].value;
-                const percentage = ((usedMB / maxMB) * 100).toFixed(1);
-
-                const percentElement = document.getElementById('memory-percentage');
-                percentElement.innerHTML = percentage + '%';
-                percentElement.className = 'metric-value ' + getStatusClass(percentage, {good: 70, warning: 85});
-            }
-
-            // Actualizar timestamp
-            document.getElementById('last-updated').innerHTML =
-                `Última actualización: ${new Date().toLocaleString()}`;
         }
 
-        // Cargar métricas al iniciar
-        loadAllMetrics();
+        // Función para limpiar caché
+        async function clearCache() {
+            try {
+                const response = await fetch('/actuator/cache/clear');
+                const result = await response.json();
+                alert('Caché limpiado exitosamente');
+                updateMetrics(); // Actualizar métricas inmediatamente
+            } catch (error) {
+                console.error('Error al limpiar caché:', error);
+                alert('Error al limpiar el caché');
+            }
+        }
 
-        // Auto-refresh cada 30 segundos
-        setInterval(loadAllMetrics, 30000);
+        // Función principal para actualizar métricas
+        async function updateMetrics() {
+            try {
+                // Métricas existentes
+                const [memoryResponse, gcResponse, cpuResponse, dbResponse, uptimeResponse] = await Promise.all([
+                    fetch('/actuator/metrics/jvm.memory.used'),
+                    fetch('/actuator/metrics/jvm.gc.pause'),
+                    fetch('/actuator/metrics/process.cpu.usage'),
+                    fetch('/actuator/metrics/hikaricp.connections.active'),
+                    fetch('/actuator/metrics/process.uptime')
+                ]);
+
+                // Nuevas métricas de caché
+                const cacheMetrics = await fetchCacheMetrics();
+                const cacheDetails = await fetchCacheDetails();
+
+                // Procesar métricas de memoria
+                if (memoryResponse.ok) {
+                    const memoryData = await memoryResponse.json();
+                    const usedMemory = memoryData.measurements.find(m => m.statistic === 'VALUE')?.value || 0;
+                    const usedMemoryMB = (usedMemory / 1024 / 1024).toFixed(1);
+
+                    document.getElementById('memory-used').textContent = usedMemoryMB + ' MB';
+
+                    // Determinar estado basado en el uso de memoria
+                    let status = 'status-good';
+                    if (usedMemoryMB > 300) status = 'status-warning';
+                    if (usedMemoryMB > 400) status = 'status-critical';
+
+                    document.getElementById('memory-description').innerHTML =
+                        `<span class="status-indicator ${status}"></span>Memoria utilizada`;
+                }
+
+                // Procesar métricas de caché
+                if (cacheMetrics) {
+                    document.getElementById('cache-hit-rate').textContent = cacheMetrics.overallHitRate || '0.00%';
+
+                    // Mostrar detalles de caché
+                    if (cacheDetails) {
+                        const detailsHtml = Object.entries(cacheDetails).map(([cacheName, stats]) => `
+                            <div class="cache-item">
+                                <div class="cache-name">${cacheName}</div>
+                                <div class="cache-stats">
+                                    Tamaño: ${stats.size} | Aciertos: ${stats.hitRate}
+                                </div>
+                            </div>
+                        `).join('');
+
+                        document.getElementById('cache-details').innerHTML = detailsHtml;
+                    }
+                }
+
+                // Procesar métricas de GC
+                if (gcResponse.ok) {
+                    const gcData = await gcResponse.json();
+                    const gcCount = gcData.measurements.find(m => m.statistic === 'COUNT')?.value || 0;
+
+                    if (uptimeResponse.ok) {
+                        const uptimeData = await uptimeResponse.json();
+                        const uptimeSeconds = uptimeData.measurements[0]?.value || 0;
+                        const uptimeHours = uptimeSeconds / 3600;
+
+                        const gcPerHour = uptimeHours > 0 ? (gcCount / uptimeHours).toFixed(1) : '0';
+
+                        document.getElementById('gc-count').textContent = `${gcCount} total`;
+                        document.getElementById('gc-description').textContent =
+                            `${gcPerHour} ejecuciones por hora`;
+                    }
+                }
+
+                // Procesar CPU
+                if (cpuResponse.ok) {
+                    const cpuData = await cpuResponse.json();
+                    const cpuUsage = cpuData.measurements[0]?.value || 0;
+                    document.getElementById('cpu-usage').textContent =
+                        (cpuUsage * 100).toFixed(1) + '%';
+                }
+
+                // Procesar BD
+                if (dbResponse.ok) {
+                    const dbData = await dbResponse.json();
+                    const activeConnections = dbData.measurements[0]?.value || 0;
+                    document.getElementById('db-connections').textContent = activeConnections;
+                }
+
+                // Procesar Uptime
+                if (uptimeResponse.ok) {
+                    const uptimeData = await uptimeResponse.json();
+                    const uptimeSeconds = uptimeData.measurements[0]?.value || 0;
+                    const hours = Math.floor(uptimeSeconds / 3600);
+                    const minutes = Math.floor((uptimeSeconds % 3600) / 60);
+                    document.getElementById('uptime').textContent = `${hours}h ${minutes}m`;
+                }
+
+                // Actualizar timestamp
+                document.getElementById('update-time').textContent = new Date().toLocaleTimeString('es-ES');
+
+            } catch (error) {
+                console.error('Error al actualizar métricas:', error);
+            }
+        }
+
+        // Inicializar dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            updateMetrics();
+            updateInterval = setInterval(updateMetrics, 30000); // Actualizar cada 30 segundos
+        });
+
+        // Limpiar intervalo al salir
+        window.addEventListener('beforeunload', function() {
+            if (updateInterval) {
+                clearInterval(updateInterval);
+            }
+        });
     </script>
 </body>
 </html>
-

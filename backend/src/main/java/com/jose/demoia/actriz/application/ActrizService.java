@@ -7,6 +7,9 @@ import com.jose.demoia.actriz.domain.ports.in.ActrizUseCase;
 import com.jose.demoia.actriz.domain.ports.out.ActrizRepository;
 import com.jose.demoia.actriz.domain.ports.out.ActrizCaracteristicaRepository;
 import com.jose.demoia.actriz.domain.ports.out.CaracteristicaRepository;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,18 +33,21 @@ public class ActrizService implements ActrizUseCase {
     }
 
     @Override
+    @CacheEvict(value = "actrices", allEntries = true) // Limpia todo el caché cuando se crea una nueva
     public Actriz crearActriz(Actriz actriz) {
         return actrizRepository.save(actriz);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "actrices", key = "#id", unless = "#result == null")
     public Optional<Actriz> obtenerActrizPorId(Long id) {
         return actrizRepository.findById(id);
     }
 
     @Override
     @Transactional(readOnly = true)
+    @Cacheable(value = "actrices", key = "'all'")
     public List<Actriz> obtenerTodasLasActrices() {
         return actrizRepository.findAll();
     }
@@ -59,11 +65,14 @@ public class ActrizService implements ActrizUseCase {
     }
 
     @Override
+    @CachePut(value = "actrices", key = "#actriz.id")
+    @CacheEvict(value = "actrices", key = "'all'") // Limpia la lista completa
     public Actriz actualizarActriz(Actriz actriz) {
         return actrizRepository.save(actriz);
     }
 
     @Override
+    @CacheEvict(value = "actrices", allEntries = true)
     public void eliminarActriz(Long id) {
         actrizRepository.deleteById(id);
     }
