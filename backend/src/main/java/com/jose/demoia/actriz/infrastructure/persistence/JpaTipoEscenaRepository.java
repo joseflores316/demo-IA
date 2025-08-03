@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface JpaTipoEscenaRepository extends JpaRepository<TipoEscena, Long> {
-
+    
     boolean existsByNombre(String nombre);
 }

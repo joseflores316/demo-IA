@@ -10,13 +10,13 @@ import java.util.Optional;
 
 @Service
 public class TipoEscenaService implements TipoEscenaUseCase {
-
+    
     private final TipoEscenaRepositoryPort tipoEscenaRepositoryPort;
-
+    
     public TipoEscenaService(TipoEscenaRepositoryPort tipoEscenaRepositoryPort) {
         this.tipoEscenaRepositoryPort = tipoEscenaRepositoryPort;
     }
-
+    
     @Override
     public TipoEscena crearTipoEscena(TipoEscena tipoEscena) {
         if (tipoEscenaRepositoryPort.existsByNombre(tipoEscena.getNombre())) {
@@ -24,22 +24,22 @@ public class TipoEscenaService implements TipoEscenaUseCase {
         }
         return tipoEscenaRepositoryPort.save(tipoEscena);
     }
-
+    
     @Override
     public Optional<TipoEscena> obtenerTipoEscenaPorId(Long id) {
         return tipoEscenaRepositoryPort.findById(id);
     }
-
+    
     @Override
     public List<TipoEscena> obtenerTodosLosTiposEscena() {
         return tipoEscenaRepositoryPort.findAll();
     }
-
+    
     @Override
     public TipoEscena actualizarTipoEscena(TipoEscena tipoEscena) {
         return tipoEscenaRepositoryPort.save(tipoEscena);
     }
-
+    
     @Override
     public void eliminarTipoEscena(Long id) {
         tipoEscenaRepositoryPort.deleteById(id);

@@ -102,7 +102,7 @@ public class EscenaRequestDto {
     public static class ActrizEscenaDto {
         @NotNull(message = "El ID de la actriz es obligatorio")
         private Long actrizId;
-
+        
         @Size(max = 50, message = "El papel no puede exceder los 50 caracteres")
         private String papel;
 

@@ -21,15 +21,15 @@ import java.util.stream.Collectors;
 @CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 @Tag(name = "Tipos de Escena", description = "API para gestión de tipos de escena")
 public class TipoEscenaController {
-
+    
     private final TipoEscenaUseCase tipoEscenaUseCase;
     private final TipoEscenaMapper tipoEscenaMapper;
-
+    
     public TipoEscenaController(TipoEscenaUseCase tipoEscenaUseCase, TipoEscenaMapper tipoEscenaMapper) {
         this.tipoEscenaUseCase = tipoEscenaUseCase;
         this.tipoEscenaMapper = tipoEscenaMapper;
     }
-
+    
     @PostMapping
     @Operation(summary = "Crear un nuevo tipo de escena", description = "Crea un nuevo tipo de escena")
     public ResponseEntity<TipoEscenaResponseDto> crearTipoEscena(@Valid @RequestBody TipoEscenaRequestDto requestDto) {
@@ -42,7 +42,7 @@ public class TipoEscenaController {
             return ResponseEntity.status(HttpStatus.CONFLICT).build();
         }
     }
-
+    
     @GetMapping("/{id}")
     @Operation(summary = "Obtener tipo de escena por ID", description = "Obtiene los detalles de un tipo de escena específico")
     public ResponseEntity<TipoEscenaResponseDto> obtenerTipoEscenaPorId(@PathVariable Long id) {
@@ -51,7 +51,7 @@ public class TipoEscenaController {
                         .map(ResponseEntity::ok)
                         .orElse(ResponseEntity.notFound().build());
     }
-
+    
     @GetMapping
     @Operation(summary = "Obtener todos los tipos de escena", description = "Obtiene una lista de todos los tipos de escena registrados")
     public ResponseEntity<List<TipoEscenaResponseDto>> obtenerTodosLosTiposEscena() {
@@ -61,7 +61,7 @@ public class TipoEscenaController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(responseDtos);
     }
-
+    
     @PutMapping("/{id}")
     @Operation(summary = "Actualizar tipo de escena", description = "Actualiza un tipo de escena existente")
     public ResponseEntity<TipoEscenaResponseDto> actualizarTipoEscena(@PathVariable Long id,
@@ -70,14 +70,14 @@ public class TipoEscenaController {
         if (tipoEscenaExistente.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
+        
         TipoEscena tipoEscena = tipoEscenaExistente.get();
         tipoEscenaMapper.updateEntityFromDto(requestDto, tipoEscena);
         TipoEscena tipoEscenaActualizado = tipoEscenaUseCase.actualizarTipoEscena(tipoEscena);
         TipoEscenaResponseDto responseDto = tipoEscenaMapper.toResponseDto(tipoEscenaActualizado);
         return ResponseEntity.ok(responseDto);
     }
-
+    
     @DeleteMapping("/{id}")
     @Operation(summary = "Eliminar tipo de escena", description = "Elimina un tipo de escena")
     public ResponseEntity<Void> eliminarTipoEscena(@PathVariable Long id) {
@@ -85,7 +85,7 @@ public class TipoEscenaController {
         if (tipoEscena.isEmpty()) {
             return ResponseEntity.notFound().build();
         }
-
+        
         tipoEscenaUseCase.eliminarTipoEscena(id);
         return ResponseEntity.noContent().build();
     }

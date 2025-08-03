@@ -9,14 +9,14 @@ import java.util.Optional;
 
 @Repository
 public interface JpaActrizEscenaRepository extends JpaRepository<ActrizEscena, Long> {
-
+    
     Optional<ActrizEscena> findByActrizIdAndEscenaId(Long actrizId, Long escenaId);
-
+    
     List<ActrizEscena> findByEscenaId(Long escenaId);
-
+    
     List<ActrizEscena> findByActrizId(Long actrizId);
-
+    
     void deleteByActrizIdAndEscenaId(Long actrizId, Long escenaId);
-
+    
     void deleteAllByEscenaId(Long escenaId);
 }

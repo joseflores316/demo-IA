@@ -8,10 +8,10 @@ import org.mapstruct.MappingTarget;
 
 @Mapper(componentModel = "spring")
 public interface TipoEscenaMapper {
-
+    
     TipoEscena toEntity(TipoEscenaRequestDto dto);
-
+    
     TipoEscenaResponseDto toResponseDto(TipoEscena entity);
-
+    
     void updateEntityFromDto(TipoEscenaRequestDto dto, @MappingTarget TipoEscena entity);
 }

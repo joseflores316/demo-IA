@@ -10,39 +10,39 @@ import java.util.Optional;
 
 @Component
 public class ActrizEscenaRepositoryAdapter implements ActrizEscenaRepositoryPort {
-
+    
     private final JpaActrizEscenaRepository jpaActrizEscenaRepository;
-
+    
     public ActrizEscenaRepositoryAdapter(JpaActrizEscenaRepository jpaActrizEscenaRepository) {
         this.jpaActrizEscenaRepository = jpaActrizEscenaRepository;
     }
-
+    
     @Override
     public ActrizEscena save(ActrizEscena actrizEscena) {
         return jpaActrizEscenaRepository.save(actrizEscena);
     }
-
+    
     @Override
     public Optional<ActrizEscena> findByActrizIdAndEscenaId(Long actrizId, Long escenaId) {
         return jpaActrizEscenaRepository.findByActrizIdAndEscenaId(actrizId, escenaId);
     }
-
+    
     @Override
     public List<ActrizEscena> findByEscenaId(Long escenaId) {
         return jpaActrizEscenaRepository.findByEscenaId(escenaId);
     }
-
+    
     @Override
     public List<ActrizEscena> findByActrizId(Long actrizId) {
         return jpaActrizEscenaRepository.findByActrizId(actrizId);
     }
-
+    
     @Override
     @Transactional
     public void deleteByActrizIdAndEscenaId(Long actrizId, Long escenaId) {
         jpaActrizEscenaRepository.deleteByActrizIdAndEscenaId(actrizId, escenaId);
     }
-
+    
     @Override
     @Transactional
     public void deleteAllByEscenaId(Long escenaId) {

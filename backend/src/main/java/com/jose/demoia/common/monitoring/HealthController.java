@@ -1,4 +1,5 @@
 package com.jose.demoia.common.monitoring;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,7 +26,7 @@ public class HealthController {
         health.put("timestamp", LocalDateTime.now());
         health.put("status", "UP");
         health.put("application", "Demo IA Application");
-
+        
         // Check database connectivity
         try (Connection connection = dataSource.getConnection()) {
             health.put("database", "UP");
@@ -34,26 +35,26 @@ public class HealthController {
             health.put("database", "DOWN");
             health.put("database_error", e.getMessage());
         }
-
+        
         // Check memory usage
         Runtime runtime = Runtime.getRuntime();
         long maxMemory = runtime.maxMemory();
         long totalMemory = runtime.totalMemory();
         long freeMemory = runtime.freeMemory();
         long usedMemory = totalMemory - freeMemory;
-
+        
         Map<String, Object> memory = new HashMap<>();
         memory.put("max", maxMemory / 1024 / 1024 + " MB");
         memory.put("total", totalMemory / 1024 / 1024 + " MB");
         memory.put("used", usedMemory / 1024 / 1024 + " MB");
         memory.put("free", freeMemory / 1024 / 1024 + " MB");
         memory.put("usage_percentage", Math.round((double) usedMemory / maxMemory * 100));
-
+        
         health.put("memory", memory);
-
+        
         return ResponseEntity.ok(health);
     }
-
+    
     @GetMapping("/version")
     public ResponseEntity<Map<String, String>> getVersion() {
         Map<String, String> version = new HashMap<>();
@@ -64,4 +65,3 @@ public class HealthController {
         return ResponseEntity.ok(version);
     }
 }
-
