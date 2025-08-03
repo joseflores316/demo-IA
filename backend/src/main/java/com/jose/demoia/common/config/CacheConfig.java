@@ -6,6 +6,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.caffeine.CaffeineCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 import java.time.Duration;
 import java.util.Arrays;
@@ -16,7 +17,6 @@ import java.util.Arrays;
  * Características:
  * - Límite máximo de entradas por caché
  * - Expiración automática por tiempo
- * - Limpieza automática de memoria
  * - Métricas integradas
  *
  * Nota: Los países no se cachean ya que son datos de referencia que raramente cambian
@@ -26,12 +26,13 @@ import java.util.Arrays;
 public class CacheConfig {
 
     @Bean
+    @Primary
     public CacheManager cacheManager() {
         CaffeineCacheManager cacheManager = new CaffeineCacheManager();
 
         // Configuración optimizada para memoria limitada
         cacheManager.setCaffeine(Caffeine.newBuilder()
-            // Máximo 300 entradas por caché (reducido sin países)
+            // Máximo 300 entradas por caché total
             .maximumSize(300)
 
             // Expira después de 20 minutos sin acceso
@@ -43,40 +44,9 @@ public class CacheConfig {
             // Habilitar métricas para monitoreo
             .recordStats());
 
-        // Definir cachés específicos (sin países) - usar Arrays.asList
+        // Definir todos los cachés en un solo manager
         cacheManager.setCacheNames(Arrays.asList("actrices", "tiposEscena", "escenas"));
 
-        return cacheManager;
-    }
-
-    /**
-     * Configuración específica para caché de actrices
-     * Menor tamaño porque incluyen imágenes URL
-     */
-    @Bean("actricesCacheManager")
-    public CacheManager actricesCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager("actrices");
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-            .maximumSize(100) // Menos entradas para actrices
-            .expireAfterAccess(Duration.ofMinutes(15))
-            .expireAfterWrite(Duration.ofMinutes(45))
-            .recordStats());
-        return cacheManager;
-    }
-
-    /**
-     * Configuración para datos de escenas y tipos
-     * Pueden mantenerse un tiempo moderado en caché
-     */
-    @Bean("escenasCacheManager")
-    public CacheManager escenasCacheManager() {
-        CaffeineCacheManager cacheManager = new CaffeineCacheManager();
-        cacheManager.setCacheNames(Arrays.asList("escenas", "tiposEscena"));
-        cacheManager.setCaffeine(Caffeine.newBuilder()
-            .maximumSize(150)
-            .expireAfterAccess(Duration.ofMinutes(30))
-            .expireAfterWrite(Duration.ofHours(2))
-            .recordStats());
         return cacheManager;
     }
 }
