@@ -1,6 +1,8 @@
 package com.jose.demoia.actriz.infrastructure.storage;
 
 import com.jose.demoia.actriz.domain.ports.out.FileStoragePort;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -19,6 +21,8 @@ import java.util.UUID;
 @Primary // Esta anotación hace que Spring use esta implementación en lugar de CloudinaryFileStorageAdapter
 public class LocalVolumeFileStorageAdapter implements FileStoragePort {
 
+    private static final Logger logger = LoggerFactory.getLogger(LocalVolumeFileStorageAdapter.class);
+
     @Value("${app.upload.dir:/app/uploads}")
     private String uploadDir;
 
@@ -34,11 +38,18 @@ public class LocalVolumeFileStorageAdapter implements FileStoragePort {
     @Override
     public String guardarImagen(MultipartFile file, String categoria) {
         try {
+            logger.info("=== INICIANDO GUARDADO DE IMAGEN ===");
+            logger.info("Upload Dir: {}", uploadDir);
+            logger.info("Base URL: {}", baseUrl);
+            logger.info("Categoria: {}", categoria);
+            logger.info("Archivo: {} ({})", file.getOriginalFilename(), file.getSize());
+
             // Validar archivo
             validarArchivo(file);
 
             // Crear directorio si no existe
             Path categoriaPath = Paths.get(uploadDir, categoria);
+            logger.info("Creando directorio: {}", categoriaPath.toAbsolutePath());
             Files.createDirectories(categoriaPath);
 
             // Generar nombre único para el archivo
@@ -47,14 +58,19 @@ public class LocalVolumeFileStorageAdapter implements FileStoragePort {
 
             // Ruta completa del archivo
             Path rutaArchivo = categoriaPath.resolve(nombreArchivo);
+            logger.info("Guardando archivo en: {}", rutaArchivo.toAbsolutePath());
 
             // Guardar el archivo
             Files.copy(file.getInputStream(), rutaArchivo, StandardCopyOption.REPLACE_EXISTING);
+            logger.info("Archivo guardado exitosamente");
 
             // Retornar URL accesible
-            return baseUrl + "/api/files/" + categoria + "/" + nombreArchivo;
+            String imageUrl = baseUrl + "/api/files/" + categoria + "/" + nombreArchivo;
+            logger.info("URL generada: {}", imageUrl);
+            return imageUrl;
 
         } catch (IOException e) {
+            logger.error("Error al guardar imagen: {}", e.getMessage(), e);
             throw new RuntimeException("Error al guardar imagen en volumen local: " + e.getMessage(), e);
         }
     }
