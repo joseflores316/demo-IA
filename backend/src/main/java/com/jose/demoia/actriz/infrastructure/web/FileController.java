@@ -15,10 +15,11 @@ import java.nio.file.Paths;
 
 @RestController
 @RequestMapping("/api/files")
+@CrossOrigin(origins = "*")
 @Tag(name = "Archivos", description = "API para servir archivos estáticos (imágenes)")
 public class FileController {
 
-    @Value("${app.file.upload-dir:uploads}")
+    @Value("${app.upload.dir:/app/uploads}")
     private String uploadDir;
 
     @GetMapping("/{categoria}/{nombreArchivo:.+}")
