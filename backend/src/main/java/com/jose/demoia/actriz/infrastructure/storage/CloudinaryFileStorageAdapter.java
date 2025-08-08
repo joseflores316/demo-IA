@@ -3,7 +3,6 @@ package com.jose.demoia.actriz.infrastructure.storage;
 import com.jose.demoia.actriz.domain.ports.out.FileStoragePort;
 import com.jose.demoia.common.infrastructure.CloudinaryService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,7 +11,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Service
-@Primary // Esta anotación hace que Spring use esta implementación en lugar de LocalFileStorageAdapter
+// @Primary // Comentamos esta línea para usar el nuevo LocalVolumeFileStorageAdapter
 public class CloudinaryFileStorageAdapter implements FileStoragePort {
 
     @Autowired
