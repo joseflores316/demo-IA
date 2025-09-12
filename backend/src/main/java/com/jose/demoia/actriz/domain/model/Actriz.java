@@ -29,7 +29,7 @@ public class Actriz {
     @Column(name = "imagen_url")
     private String imagenUrl;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "pais_id", nullable = false)
     private Pais pais;
 
