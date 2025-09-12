@@ -1,0 +1,55 @@
+@startuml
+
+class Actriz {
+  - id : number
+  - nombre : varchar(100)
+  - fecha_nacimiento : date
+  - calificacion : decimal(3,1)
+  - fecha_registro : timestamp
+}
+
+class Pais {
+  - id : number
+  - nombre : varchar(100)
+  - codigo_iso : char(2)
+  - bandera_url : varchar(255)
+}
+
+class Caracteristica {
+  - id : number
+  - nombre : varchar(50)
+  - descripcion : text
+  - tipo : varchar(30)
+}
+
+class Escena {
+  - id : number
+  - descripcion : text
+  - fecha_grabacion : date
+  - duracion : interval
+  - ubicacion : varchar(100)
+}
+
+class TipoEscena {
+  - id : number
+  - nombre : varchar(100)
+}
+
+class ActrizCaracteristica {
+  - id : number
+}
+
+class ActrizEscena {
+  - id : number
+  - papel : varchar(50)
+}
+
+' Relaciones
+Actriz "1" --> "1" Pais
+Actriz "*" --> "*" ActrizCaracteristica
+Caracteristica "*" --> "*" ActrizCaracteristica
+Actriz "*" --> "*" ActrizEscena
+Escena "*" --> "*" ActrizEscena
+Escena "*" --> "1" TipoEscena
+
+@enduml

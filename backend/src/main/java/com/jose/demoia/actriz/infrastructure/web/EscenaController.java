@@ -164,6 +164,88 @@ public class EscenaController {
         return ResponseEntity.ok(responseDto);
     }
 
+    @PutMapping(value = "/{id}/con-imagen", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<EscenaResponseDto> actualizarEscenaConImagen(
+            @PathVariable Long id,
+            @RequestPart("escena") String escenaJson,
+            @RequestPart(value = "imagen", required = false) MultipartFile imagen) {
+
+        try {
+            System.out.println("Actualizando escena con ID: " + id);
+            System.out.println("Recibiendo solicitud con escenaJson: " + escenaJson);
+
+            // Verificar que la escena existe
+            Optional<Escena> escenaExistente = escenaUseCase.obtenerEscenaPorId(id);
+            if (escenaExistente.isEmpty()) {
+                return ResponseEntity.notFound().build();
+            }
+
+            EscenaRequestDto requestDto = objectMapper.readValue(escenaJson, EscenaRequestDto.class);
+            System.out.println("DTO parseado correctamente: " + requestDto);
+
+            Escena escena = escenaExistente.get();
+            String imagenUrlAnterior = escena.getImagenUrl();
+
+            // Si se proporciona una nueva imagen, guardarla y eliminar la anterior
+            if (imagen != null && !imagen.isEmpty()) {
+                System.out.println("Guardando nueva imagen: " + imagen.getOriginalFilename());
+                String nuevaImagenUrl = fileStoragePort.guardarImagen(imagen, "escenas");
+                requestDto.setImagenUrl(nuevaImagenUrl);
+                System.out.println("Nueva imagen guardada en: " + nuevaImagenUrl);
+
+                // Eliminar imagen anterior si existe y es diferente
+                if (imagenUrlAnterior != null && !imagenUrlAnterior.equals(nuevaImagenUrl)) {
+                    try {
+                        fileStoragePort.eliminarImagen(imagenUrlAnterior);
+                        System.out.println("Imagen anterior eliminada: " + imagenUrlAnterior);
+                    } catch (Exception e) {
+                        System.err.println("Error al eliminar imagen anterior: " + e.getMessage());
+                    }
+                }
+            } else {
+                // Si no se proporciona nueva imagen, mantener la existente
+                requestDto.setImagenUrl(imagenUrlAnterior);
+                System.out.println("Manteniendo imagen existente: " + imagenUrlAnterior);
+            }
+
+            // Actualizar la escena con los nuevos datos
+            escenaMapper.updateEntityFromDto(requestDto, escena);
+            System.out.println("Entity actualizada: " + escena);
+
+            // Preparar información de actrices si se proporcionaron
+            List<EscenaService.ActrizEscenaInfo> actricesInfo = null;
+            if (requestDto.getActrices() != null && !requestDto.getActrices().isEmpty()) {
+                actricesInfo = requestDto.getActrices().stream()
+                    .map(dto -> new EscenaService.ActrizEscenaInfo(dto.getActrizId(), dto.getPapel()))
+                    .collect(Collectors.toList());
+                System.out.println("Actrices info preparada: " + actricesInfo.size() + " actrices");
+            }
+
+            // Actualizar escena con actrices asociadas
+            Escena escenaActualizada;
+            if (actricesInfo != null && !actricesInfo.isEmpty()) {
+                System.out.println("Actualizando escena con actrices");
+                // Aquí necesitaríamos un método específico para actualizar con actrices
+                // Por ahora usamos el método de creación que reemplazará las asociaciones
+                escenaActualizada = escenaService.crearEscenaConActrices(escena, actricesInfo);
+            } else {
+                System.out.println("Actualizando escena sin cambios en actrices");
+                escenaActualizada = escenaUseCase.crearEscena(escena);
+            }
+
+            System.out.println("Escena actualizada con ID: " + escenaActualizada.getId());
+            EscenaResponseDto responseDto = escenaMapper.toResponseDto(escenaActualizada);
+            System.out.println("Response DTO creado");
+
+            return ResponseEntity.ok(responseDto);
+
+        } catch (Exception e) {
+            System.err.println("Error al actualizar escena con imagen: " + e.getMessage());
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarEscena(@PathVariable Long id) {
         Optional<Escena> escena = escenaUseCase.obtenerEscenaPorId(id);

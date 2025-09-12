@@ -202,15 +202,21 @@ export class EscenaFormComponent implements OnInit {
       };
 
       if (this.isEditMode && this.escenaId) {
-        // Modo edición
-        this.escenaService.updateEscena(this.escenaId, escenaData).subscribe({
+        // Modo edición - usar endpoint con imagen para preservar o actualizar la imagen
+        console.log('Modo edición - Datos de escena a enviar:', escenaData);
+        console.log('Archivo seleccionado para actualización:', this.selectedFile);
+
+        this.escenaService.updateEscenaConImagen(this.escenaId, escenaData, this.selectedFile || undefined).subscribe({
           next: () => {
             this.router.navigate(['/escenas']);
           },
           error: (err) => {
             this.error = 'Error al actualizar la escena';
             this.loading = false;
-            console.error('Error:', err);
+            console.error('Error completo:', err);
+            console.error('Status:', err.status);
+            console.error('Message:', err.message);
+            console.error('Error details:', err.error);
           }
         });
       } else {
