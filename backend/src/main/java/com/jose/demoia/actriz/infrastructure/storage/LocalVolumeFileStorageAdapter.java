@@ -43,7 +43,7 @@ public class LocalVolumeFileStorageAdapter implements FileStoragePort {
             logger.info("Base URL: {}", baseUrl);
             logger.info("Categoria: {}", categoria);
             logger.info("Archivo: {} ({})", file.getOriginalFilename(), file.getSize());
-
+            
             // Validar archivo
             validarArchivo(file);
 
@@ -55,7 +55,7 @@ public class LocalVolumeFileStorageAdapter implements FileStoragePort {
             // Generar nombre único para el archivo
             String extension = getFileExtension(file.getOriginalFilename());
             String nombreArchivo = UUID.randomUUID().toString() + extension;
-
+            
             // Ruta completa del archivo
             Path rutaArchivo = categoriaPath.resolve(nombreArchivo);
             logger.info("Guardando archivo en: {}", rutaArchivo.toAbsolutePath());

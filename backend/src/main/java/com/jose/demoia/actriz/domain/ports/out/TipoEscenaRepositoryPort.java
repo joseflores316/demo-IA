@@ -6,14 +6,14 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TipoEscenaRepositoryPort {
-
+    
     TipoEscena save(TipoEscena tipoEscena);
-
+    
     Optional<TipoEscena> findById(Long id);
-
+    
     List<TipoEscena> findAll();
-
+    
     void deleteById(Long id);
-
+    
     boolean existsByNombre(String nombre);
 }
