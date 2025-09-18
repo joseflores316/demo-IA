@@ -79,6 +79,17 @@ public class KafkaConfig {
         configProps.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
         configProps.put(ConsumerConfig.GROUP_ID_CONFIG, "actriz-events-group");
 
+        // AÑADIR CONFIGURACIONES SASL/SSL TAMBIÉN AL CONSUMER
+        if (!securityProtocol.isEmpty()) {
+            configProps.put("security.protocol", securityProtocol);
+        }
+        if (!saslMechanism.isEmpty()) {
+            configProps.put("sasl.mechanism", saslMechanism);
+        }
+        if (!saslJaasConfig.isEmpty()) {
+            configProps.put("sasl.jaas.config", saslJaasConfig);
+        }
+
         // Configurar ErrorHandlingDeserializer para manejar errores de deserialización
         configProps.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
         configProps.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, ErrorHandlingDeserializer.class);
