@@ -1,4 +1,5 @@
 package com.jose.demoia.actriz.domain.ports.in;
+
 import com.jose.demoia.actriz.domain.model.TipoEscena;
 
 import java.util.List;
@@ -16,4 +17,3 @@ public interface TipoEscenaUseCase {
 
     void eliminarTipoEscena(Long id);
 }
-

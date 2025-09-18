@@ -1,4 +1,5 @@
 package com.jose.demoia.common.monitoring;
+
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.stats.CacheStats;
 import org.springframework.cache.CacheManager;
@@ -103,4 +104,3 @@ public class CacheMetricsController {
         return result;
     }
 }
-
