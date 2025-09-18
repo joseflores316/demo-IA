@@ -15,16 +15,16 @@ import org.springframework.stereotype.Service;
 
 /**
  * Servicio consumidor de eventos de Kafka para actrices
- * TEMPORALMENTE DESHABILITADO PARA TROUBLESHOOTING
+ * REHABILITADO: Con configuración corregida
  */
 @Service
-@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "false") // CAMBIADO: Deshabilitar temporalmente
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true") // HABILITADO NUEVAMENTE
 public class ActrizEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ActrizEventConsumer.class);
 
     /**
-     * Escucha eventos de actrices - SIMPLIFICADO para mostrar solo lo esencial
+     * Escucha eventos de actrices - CORREGIDO para manejar errores de deserialización
      */
     @KafkaListener(topics = "actriz-events", groupId = "actriz-events-group")
     public void handleActrizEvent(@Payload Object event,
@@ -33,11 +33,15 @@ public class ActrizEventConsumer {
                                  @Header(KafkaHeaders.OFFSET) long offset) {
 
         try {
-            // MANEJO CORRECTO DE ConsumerRecord
+            logger.info("📨 EVENTO RECIBIDO de Kafka: Topic={}, Partition={}, Offset={}", topic, partition, offset);
+            logger.info("📨 TIPO DE EVENTO: {}", event.getClass().getSimpleName());
+
+            // MANEJO MEJORADO DE EVENTOS
             Object actualEvent = event;
             if (event instanceof ConsumerRecord) {
                 ConsumerRecord<?, ?> consumerRecord = (ConsumerRecord<?, ?>) event;
                 actualEvent = consumerRecord.value();
+                logger.info("📦 EVENTO EXTRAÍDO DE ConsumerRecord: {}", actualEvent.getClass().getSimpleName());
             }
 
             // Procesar diferentes tipos de eventos
@@ -47,10 +51,14 @@ public class ActrizEventConsumer {
                 handleActrizActualizada((ActrizActualizadaEvent) actualEvent);
             } else if (actualEvent instanceof ActrizEliminadaEvent) {
                 handleActrizEliminada((ActrizEliminadaEvent) actualEvent);
+            } else {
+                logger.info("📦 EVENTO DE TIPO DESCONOCIDO o de DIAGNÓSTICO: {}", actualEvent);
             }
 
+            logger.info("✅ EVENTO PROCESADO EXITOSAMENTE");
+
         } catch (Exception e) {
-            logger.error("❌ ERROR AL PROCESAR EVENTO KAFKA: {}", e.getMessage());
+            logger.error("❌ ERROR AL PROCESAR EVENTO KAFKA: {}", e.getMessage(), e);
         }
     }
 

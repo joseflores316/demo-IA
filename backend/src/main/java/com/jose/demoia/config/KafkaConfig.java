@@ -20,13 +20,22 @@ import java.util.Map;
 
 @Configuration
 @EnableKafka
-@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true", matchIfMissing = false) // CAMBIO: No ejecutar por defecto
 public class KafkaConfig {
 
-    @Value("${spring.kafka.bootstrap-servers:localhost:29092}")
+    @Value("${spring.kafka.bootstrap-servers:localhost:9092}") // CORREGIDO: Usar puerto correcto
     private String bootstrapServers;
 
-    // Producer Configuration
+    @Value("${spring.kafka.properties.security.protocol:}")
+    private String securityProtocol;
+
+    @Value("${spring.kafka.properties.sasl.mechanism:}")
+    private String saslMechanism;
+
+    @Value("${spring.kafka.properties.sasl.jaas.config:}")
+    private String saslJaasConfig;
+
+    // Producer Configuration - CORREGIDO para Railway/Confluent Cloud
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> configProps = new HashMap<>();
@@ -34,12 +43,23 @@ public class KafkaConfig {
         configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
 
-        // Configuraciones adicionales para mejor rendimiento
+        // Configuraciones SASL/SSL para Confluent Cloud
+        if (!securityProtocol.isEmpty()) {
+            configProps.put("security.protocol", securityProtocol);
+        }
+        if (!saslMechanism.isEmpty()) {
+            configProps.put("sasl.mechanism", saslMechanism);
+        }
+        if (!saslJaasConfig.isEmpty()) {
+            configProps.put("sasl.jaas.config", saslJaasConfig);
+        }
+
+        // Configuraciones adicionales para mejor rendimiento y robustez
         configProps.put(ProducerConfig.ACKS_CONFIG, "1");
-        configProps.put(ProducerConfig.RETRIES_CONFIG, 3);
-        configProps.put(ProducerConfig.BATCH_SIZE_CONFIG, 16384);
-        configProps.put(ProducerConfig.LINGER_MS_CONFIG, 1);
-        configProps.put(ProducerConfig.BUFFER_MEMORY_CONFIG, 33554432);
+        configProps.put(ProducerConfig.RETRIES_CONFIG, 5);
+        configProps.put(ProducerConfig.RETRY_BACKOFF_MS_CONFIG, 1000);
+        configProps.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, 120000);
+        configProps.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, 300000);
 
         // Configurar el JsonSerializer para incluir información de tipo
         configProps.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, true);
