@@ -9,19 +9,12 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:29092
     depends_on:
       - postgres
+      - kafka
     volumes:
       - ./backend/uploads:/uploads
-    networks:
-      - app-network
-
-  frontend:
-    build: ./frontend/actriz-frontend
-    ports:
-      - "80:80"
-    depends_on:
-      - app
     networks:
       - app-network
 
@@ -35,6 +28,27 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+  kafka:
+    image: wurstmeister/kafka:latest
+    ports:
+      - "29092:29092"
+    expose:
+      - "29092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: INSIDE://kafka:29092,OUTSIDE://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INSIDE:PLAINTEXT,OUTSIDE:PLAINTEXT
+      KAFKA_LISTENERS: INSIDE://0.0.0.0:29092,OUTSIDE://0.0.0.0:29092
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:32181
+    networks:
+      - app-network
+
+  zookeeper:
+    image: wurstmeister/zookeeper:latest
+    ports:
+      - "32181:32181"
     networks:
       - app-network
 
