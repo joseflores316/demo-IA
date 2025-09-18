@@ -6,6 +6,7 @@ import com.jose.demoia.actriz.infrastructure.messaging.events.ActrizEliminadaEve
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.support.KafkaHeaders;
 import org.springframework.messaging.handler.annotation.Header;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
  * Servicio consumidor de eventos de Kafka para actrices
  */
 @Service
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true", matchIfMissing = true)
 public class ActrizEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ActrizEventConsumer.class);
