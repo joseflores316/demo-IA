@@ -1,7 +1,12 @@
 package com.jose.demoia.common.monitoring;
 
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,12 +17,26 @@ import java.net.Socket;
 import java.net.SocketTimeoutException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.TimeUnit;
 
 @RestController
 @RequestMapping("/api/diagnostics")
 public class NetworkDiagnosticsController {
 
     private static final Logger logger = LoggerFactory.getLogger(NetworkDiagnosticsController.class);
+
+    @Value("${spring.kafka.bootstrap-servers:}")
+    private String bootstrapServers;
+
+    @Value("${spring.kafka.properties.sasl.jaas.config:}")
+    private String saslJaasConfig;
+
+    @Value("${spring.kafka.properties.security.protocol:}")
+    private String securityProtocol;
+
+    @Value("${spring.kafka.properties.sasl.mechanism:}")
+    private String saslMechanism;
 
     @GetMapping("/kafka-connectivity")
     public Map<String, Object> testKafkaConnectivity() {
@@ -115,6 +134,99 @@ public class NetworkDiagnosticsController {
                 logger.warn("❌ Puerto {} BLOQUEADO: {}", port, e.getMessage());
             }
         }
+        return result;
+    }
+
+    @GetMapping("/kafka-auth-test")
+    public Map<String, Object> testKafkaAuthentication() {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            logger.info("🔍 Probando autenticación SASL con Confluent Cloud");
+
+            // Verificar configuración
+            result.put("bootstrap_servers", bootstrapServers);
+            result.put("security_protocol", securityProtocol);
+            result.put("sasl_mechanism", saslMechanism);
+            result.put("sasl_config_present", !saslJaasConfig.isEmpty());
+
+            if (bootstrapServers.isEmpty() || saslJaasConfig.isEmpty()) {
+                result.put("status", "CONFIG_ERROR");
+                result.put("message", "Configuración de Kafka incompleta");
+                result.put("missing", bootstrapServers.isEmpty() ? "bootstrap-servers" : "sasl-config");
+                return result;
+            }
+
+            // Configurar producer de prueba
+            Properties props = new Properties();
+            props.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+            props.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            props.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+            props.put("security.protocol", securityProtocol);
+            props.put("sasl.mechanism", saslMechanism);
+            props.put("sasl.jaas.config", saslJaasConfig);
+
+            // Configuración específica para diagnóstico
+            props.put(ProducerConfig.REQUEST_TIMEOUT_MS_CONFIG, "10000");
+            props.put(ProducerConfig.DELIVERY_TIMEOUT_MS_CONFIG, "15000");
+            props.put(ProducerConfig.METADATA_MAX_AGE_CONFIG, "5000");
+
+            long startTime = System.currentTimeMillis();
+
+            try (KafkaProducer<String, String> producer = new KafkaProducer<>(props)) {
+                logger.info("🚀 Producer creado, enviando mensaje de prueba...");
+
+                // Enviar mensaje de prueba
+                ProducerRecord<String, String> record = new ProducerRecord<>(
+                    "actriz-events",
+                    "test-key",
+                    "{\"test\": \"auth-diagnostic\", \"timestamp\": " + System.currentTimeMillis() + "}"
+                );
+
+                var future = producer.send(record);
+                var metadata = future.get(10, TimeUnit.SECONDS);
+
+                long authTime = System.currentTimeMillis() - startTime;
+
+                result.put("status", "SUCCESS");
+                result.put("message", "Autenticación SASL exitosa - mensaje enviado");
+                result.put("topic", metadata.topic());
+                result.put("partition", metadata.partition());
+                result.put("offset", metadata.offset());
+                result.put("auth_time_ms", authTime);
+                logger.info("✅ Autenticación SASL exitosa en {}ms", authTime);
+
+            }
+
+        } catch (org.apache.kafka.common.errors.SaslAuthenticationException e) {
+            result.put("status", "SASL_AUTH_ERROR");
+            result.put("message", "Error de autenticación SASL - credenciales incorrectas");
+            result.put("error", e.getMessage());
+            result.put("diagnosis", "Las credenciales SASL son incorrectas. Verifica KAFKA_USERNAME y KAFKA_PASSWORD en Railway.");
+            logger.error("❌ Error de autenticación SASL: {}", e.getMessage());
+
+        } catch (org.apache.kafka.common.errors.TopicAuthorizationException e) {
+            result.put("status", "TOPIC_AUTH_ERROR");
+            result.put("message", "Sin permisos para acceder al topic");
+            result.put("error", e.getMessage());
+            result.put("diagnosis", "El usuario no tiene permisos para escribir en el topic 'actriz-events'.");
+            logger.error("❌ Error de autorización del topic: {}", e.getMessage());
+
+        } catch (java.util.concurrent.TimeoutException e) {
+            result.put("status", "TIMEOUT");
+            result.put("message", "Timeout en autenticación SASL");
+            result.put("error", e.getMessage());
+            result.put("diagnosis", "La autenticación tardó demasiado - posible problema de red o configuración.");
+            logger.error("⏰ Timeout en autenticación SASL: {}", e.getMessage());
+
+        } catch (Exception e) {
+            result.put("status", "UNKNOWN_ERROR");
+            result.put("message", "Error inesperado en autenticación");
+            result.put("error", e.getMessage());
+            result.put("error_class", e.getClass().getSimpleName());
+            logger.error("💥 Error inesperado en autenticación: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+        }
+
         return result;
     }
 }
