@@ -15,9 +15,10 @@ import org.springframework.stereotype.Service;
 
 /**
  * Servicio consumidor de eventos de Kafka para actrices
+ * TEMPORALMENTE DESHABILITADO PARA TROUBLESHOOTING
  */
 @Service
-@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(name = "spring.kafka.enabled", havingValue = "false") // CAMBIADO: Deshabilitar temporalmente
 public class ActrizEventConsumer {
 
     private static final Logger logger = LoggerFactory.getLogger(ActrizEventConsumer.class);
