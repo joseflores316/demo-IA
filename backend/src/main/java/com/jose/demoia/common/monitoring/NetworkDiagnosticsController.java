@@ -229,4 +229,89 @@ public class NetworkDiagnosticsController {
 
         return result;
     }
+
+    @GetMapping("/kafka-consumer-test")
+    public Map<String, Object> testKafkaConsumer() {
+        Map<String, Object> result = new HashMap<>();
+
+        try {
+            logger.info("🔍 Probando Consumer de Kafka con Confluent Cloud");
+
+            // Verificar configuración del consumer
+            result.put("bootstrap_servers", bootstrapServers);
+            result.put("security_protocol", securityProtocol);
+            result.put("sasl_mechanism", saslMechanism);
+            result.put("sasl_config_present", !saslJaasConfig.isEmpty());
+
+            if (bootstrapServers.isEmpty() || saslJaasConfig.isEmpty()) {
+                result.put("status", "CONFIG_ERROR");
+                result.put("message", "Configuración de Kafka incompleta para Consumer");
+                return result;
+            }
+
+            // Configurar consumer de prueba
+            Properties props = new Properties();
+            props.put("bootstrap.servers", bootstrapServers);
+            props.put("key.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            props.put("value.deserializer", "org.apache.kafka.common.serialization.StringDeserializer");
+            props.put("security.protocol", securityProtocol);
+            props.put("sasl.mechanism", saslMechanism);
+            props.put("sasl.jaas.config", saslJaasConfig);
+            props.put("group.id", "diagnostic-consumer-group");
+            props.put("auto.offset.reset", "latest");
+            props.put("enable.auto.commit", "false");
+
+            // Configuración específica para diagnóstico
+            props.put("session.timeout.ms", "30000");
+            props.put("heartbeat.interval.ms", "10000");
+            props.put("request.timeout.ms", "120000");
+
+            long startTime = System.currentTimeMillis();
+
+            try (org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer =
+                 new org.apache.kafka.clients.consumer.KafkaConsumer<>(props)) {
+
+                logger.info("🚀 Consumer creado, suscribiéndose al topic...");
+
+                // Suscribirse al topic
+                consumer.subscribe(java.util.Arrays.asList("actriz-events"));
+
+                // Intentar hacer poll para activar la conexión
+                var records = consumer.poll(java.time.Duration.ofSeconds(10));
+
+                long authTime = System.currentTimeMillis() - startTime;
+
+                result.put("status", "SUCCESS");
+                result.put("message", "Consumer conectado exitosamente a Confluent Cloud");
+                result.put("records_received", records.count());
+                result.put("partitions_assigned", consumer.assignment().size());
+                result.put("auth_time_ms", authTime);
+                logger.info("✅ Consumer conectado exitosamente en {}ms", authTime);
+
+            }
+
+        } catch (org.apache.kafka.common.errors.SaslAuthenticationException e) {
+            result.put("status", "SASL_AUTH_ERROR");
+            result.put("message", "Error de autenticación SASL en Consumer");
+            result.put("error", e.getMessage());
+            result.put("diagnosis", "Las credenciales SASL del Consumer son incorrectas.");
+            logger.error("❌ Error de autenticación SASL en Consumer: {}", e.getMessage());
+
+        } catch (org.apache.kafka.common.errors.TopicAuthorizationException e) {
+            result.put("status", "TOPIC_AUTH_ERROR");
+            result.put("message", "Sin permisos para leer del topic");
+            result.put("error", e.getMessage());
+            result.put("diagnosis", "El usuario no tiene permisos para leer del topic 'actriz-events'.");
+            logger.error("❌ Error de autorización del topic en Consumer: {}", e.getMessage());
+
+        } catch (Exception e) {
+            result.put("status", "UNKNOWN_ERROR");
+            result.put("message", "Error inesperado en Consumer");
+            result.put("error", e.getMessage());
+            result.put("error_class", e.getClass().getSimpleName());
+            logger.error("💥 Error inesperado en Consumer: {} - {}", e.getClass().getSimpleName(), e.getMessage());
+        }
+
+        return result;
+    }
 }
